@@ -1,0 +1,32 @@
+{
+  "feature": "",
+  "branch": "",
+  "base_sha": null,
+  "phase": "init",
+  "status": "pending",
+  "task": { "current": 1, "total": 0 },
+  "task_attempts": {},
+  "gates": {
+    "plan_approved": false,
+    "coherence_passed": false,
+    "typecheck": false,
+    "tests": false,
+    "browser": false,
+    "review": false,
+    "pr_reviews_resolved": false,
+    "ci_green": false,
+    "deploy_healthy": false
+  },
+  "iteration": { "current": 1 },
+  "commits": [],
+  "pr": { "number": null, "url": null },
+  "deploy": { "rollback_commit": null, "has_migrations": false },
+  "dev_port": 9000,
+  "neon_branch": null,
+  "worktree_path": null,
+  "replan_requested": false,
+  "blocked_reason": null,
+  "last_error": null,
+  "created_at": "",
+  "updated_at": ""
+}

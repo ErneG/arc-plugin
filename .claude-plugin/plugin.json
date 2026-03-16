@@ -1,0 +1,23 @@
+{
+  "name": "arc",
+  "version": "0.1.0",
+  "description": "Autonomous development engine with UX-aware planning, worktree isolation, verification gates, and deployment integration",
+  "author": {
+    "name": "Ernest Dane",
+    "url": "https://github.com/ErneG"
+  },
+  "repository": "https://github.com/ErneG/arc-plugin",
+  "license": "MIT",
+  "keywords": [
+    "development",
+    "autonomous",
+    "worktree",
+    "verification",
+    "deployment",
+    "ux",
+    "planning"
+  ],
+  "skills": "./skills/",
+  "agents": "./agents/",
+  "hooks": "./hooks/hooks.json"
+}

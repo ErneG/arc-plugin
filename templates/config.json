@@ -1,0 +1,17 @@
+{
+  "version": "1.0",
+  "db_strategy": "neon",
+  "neon": {
+    "project_id": "",
+    "parent_branch": "production",
+    "branch_prefix": "wt/"
+  },
+  "ports": { "min": 9001, "max": 9999 },
+  "tdd": "auto",
+  "deploy": {
+    "app_uuid": "",
+    "health_url": ""
+  },
+  "feature_name_pattern": "^[a-z][a-z0-9-]*$",
+  "feature_name_max_length": 50
+}
