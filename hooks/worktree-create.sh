@@ -21,21 +21,12 @@ PORT_MIN=$(jq -r '.ports.min // 9001' "$TIDE_CONFIG" 2>/dev/null || echo 9001)
 PORT_MAX=$(jq -r '.ports.max // 9999' "$TIDE_CONFIG" 2>/dev/null || echo 9999)
 DB_STRATEGY=$(jq -r '.db_strategy // "neon"' "$TIDE_CONFIG" 2>/dev/null || echo "neon")
 
-# Resolve worktree path from hook input, or fall back to .tide/worktrees/
-WORKTREE_PATH=$(echo "$INPUT" | jq -r '.worktree_path // empty' 2>/dev/null)
+# Resolve worktree path — Claude Code creates at .claude/worktrees/<name>
+# The hook fires AFTER the worktree is created, so we can find it via git
+WORKTREE_PATH=$(git worktree list --porcelain 2>/dev/null | grep -A0 "^worktree.*${WORKTREE_NAME}$" | sed 's/^worktree //' | head -1)
 if [[ -z "$WORKTREE_PATH" ]]; then
-  # Check if Claude Code created it at the default location
-  DEFAULT_PATH="$MAIN_REPO/.claude/worktrees/$WORKTREE_NAME"
-  TIDE_PATH="$MAIN_REPO/.tide/worktrees/$WORKTREE_NAME"
-  if [[ -d "$DEFAULT_PATH" ]]; then
-    WORKTREE_PATH="$DEFAULT_PATH"
-  elif [[ -d "$TIDE_PATH" ]]; then
-    WORKTREE_PATH="$TIDE_PATH"
-  else
-    # Last resort: find it via git
-    WORKTREE_PATH=$(git worktree list --porcelain | grep "^worktree.*$WORKTREE_NAME" | sed 's/^worktree //' | head -1)
-    [[ -z "$WORKTREE_PATH" ]] && WORKTREE_PATH="$TIDE_PATH"
-  fi
+  # Fall back to standard location
+  WORKTREE_PATH="$MAIN_REPO/.claude/worktrees/$WORKTREE_NAME"
 fi
 
 log() { echo "$*" > /dev/tty 2>/dev/null || true; }
