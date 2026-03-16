@@ -1,6 +1,6 @@
 {
   "name": "tide",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Autonomous Medusa development engine with UX-aware planning, worktree isolation, verification gates, and deployment integration",
   "author": {
     "name": "Ernest Dane",
