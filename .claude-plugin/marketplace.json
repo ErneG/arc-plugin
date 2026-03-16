@@ -5,12 +5,13 @@
     "email": "ernests.dane@gmail.com"
   },
   "metadata": {
-    "description": "Arc autonomous development engine"
+    "description": "Arc autonomous development engine",
+    "pluginRoot": "."
   },
   "plugins": [
     {
       "name": "arc",
-      "source": ".",
+      "source": "./",
       "description": "Autonomous development engine with UX-aware planning, worktree isolation, and deployment integration",
       "version": "0.1.0"
     }
