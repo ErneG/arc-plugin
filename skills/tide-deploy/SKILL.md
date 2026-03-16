@@ -1,22 +1,25 @@
 ---
 name: tide:deploy
 description: >
-  Merge PR, deploy to Coolify, verify health. Triggers: "tide deploy", "merge and deploy".
-allowed-tools: Read, Write, Bash
+  Merge PR and monitor deployment. Coolify CI/CD handles the actual deploy automatically.
+  Triggers: "tide deploy", "merge and deploy", "land it".
+allowed-tools: Read, Bash
 ---
 
-# /tide:deploy — Merge and Deploy
+# /tide:deploy — Merge PR
 
-1. Verify PR is mergeable (checks passing, reviews approved)
+Coolify auto-deploys on merge. This skill just merges and monitors.
+
+## Process
+
+1. Verify PR is mergeable: `gh pr checks <number>`
 2. Merge PR: `gh pr merge <number> --merge`
-3. Deploy via Coolify MCP or API
-4. Wait for deployment, check health endpoint
-5. Update STATE.json with deploy status
-6. Set phase to "done"
+3. Monitor Coolify deployment (auto-triggered by push to master):
+   ```bash
+   # Wait for deploy, then check health
+   sleep 30
+   curl -sf <health_url> > /dev/null && echo "Healthy" || echo "Check deployment"
+   ```
+4. Update STATE.json: phase → "done"
 
-Requires `deploy.app_uuid` and `deploy.health_url` in `.tide/config.json`.
-
-```
-[tide] Deployed! Health check passed.
-  Next: /tide:teardown <name> to clean up
-```
+No manual deploy trigger needed — Coolify watches the repo.
