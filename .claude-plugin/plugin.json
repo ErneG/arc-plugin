@@ -7,17 +7,5 @@
     "url": "https://github.com/ErneG"
   },
   "repository": "https://github.com/ErneG/arc-plugin",
-  "license": "MIT",
-  "keywords": [
-    "development",
-    "autonomous",
-    "worktree",
-    "verification",
-    "deployment",
-    "ux",
-    "planning"
-  ],
-  "skills": "./skills/",
-  "agents": "./agents/",
-  "hooks": "./hooks/hooks.json"
+  "license": "MIT"
 }
