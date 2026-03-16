@@ -2,7 +2,7 @@
 name: verifier
 description: >
   Verifies implementation from the USER's perspective, not just technical correctness.
-  Runs type-check, tests, and agent-browser UX verification.
+  Runs module integrity, route validation, type-check, tests, and agent-browser UX verification.
 tools:
   - Read
   - Bash
@@ -16,6 +16,24 @@ You verify that the implementation works from the END USER's perspective,
 not just that it compiles and tests pass.
 
 ## Verification Gates (run in order)
+
+### Gate 0: Module Integrity
+
+```bash
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/verify-modules.sh"
+```
+
+Cross-references modules on disk vs medusa-config.ts vs MODULE_NAMES.ts.
+Set `gates.modules = true/false`.
+
+### Gate 0.5: Route Validation
+
+```bash
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/verify-routes.sh"
+```
+
+Checks all routes with `req.validatedBody` have matching zod schemas and middleware.
+Set `gates.routes = true/false`.
 
 ### Gate 1: Type-check
 
@@ -36,51 +54,55 @@ Determine scope from changed files:
 If tests fail, retry ONCE with `--onlyFailures` before marking as failed.
 Set `gates.tests = true/false`.
 
-### Gate 3: UX Verification (the part nobody else does)
+### Gate 3: Browser Verification (agent-browser powered)
 
-Read the plan's **User Flow** section. Then verify each step actually works:
+Run the comprehensive browser verification suite:
 
 ```bash
 PORT=$(grep "^PORT=" .env 2>/dev/null | cut -d= -f2)
 PORT=${PORT:-9000}
-
-# Check server is running
-curl -sf http://localhost:$PORT/health > /dev/null 2>&1 || {
-  echo "No dev server — skipping browser verification"
-  # Set gates.browser = "skipped:no_server"
-}
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/browser-verify.sh" "$PORT" "<page-from-plan>"
 ```
 
-If server is running and `src/admin/` files changed:
+This runs:
+1. **JS error check** — `agent-browser errors`
+2. **Accessibility audit** — axe-core injected via `eval` (WCAG 2.1 AA)
+3. **Heading hierarchy** — h1 count, level skips
+4. **Empty/loading state detection** — skeleton/empty-state selectors
+5. **Button hierarchy** — primary count, disabled states
+6. **Interactive snapshot** — accessibility tree of interactive elements
+
+For additional manual checks (from the plan's User Flow):
 
 ```bash
-# Navigate to the feature
-agent-browser open "http://localhost:$PORT/app/<page-from-plan>"
+# Navigate to specific pages
+agent-browser --profile ~/.medusa-admin open "http://localhost:$PORT/app/<page>"
 agent-browser wait --load networkidle
 
-# Check: page loads without errors
-agent-browser errors
+# Verify user flow step by step
+agent-browser snapshot -i -c
+agent-browser click @e<ref>
+agent-browser wait --load networkidle
 agent-browser snapshot -i -c
 
-# Check: key elements from plan's "What the user sees" are present
-# Compare snapshot output against plan expectations
+# Compare before/after
+agent-browser diff snapshot
 
-# Check: empty state
-# If this is a list/table, check what shows with no data
-
-# Check: complete user flow
-# Follow the steps from the plan's User Flow section
+# Close when done
+agent-browser close
 ```
 
-Verify:
-
-1. **Page loads** — no blank screen, no console errors
-2. **User flow works** — can complete the plan's user flow start-to-finish
-3. **No duplicate UI** — feature doesn't create competing pages with existing functionality
-4. **Empty/error states** — handled gracefully
-5. **Navigation** — feature is reachable from expected location
-
 Set `gates.browser = true/false/"skipped:reason"`.
+
+### Gate 4: Data Integrity (optional)
+
+If `psql` is available and DATABASE_URL is set:
+
+```bash
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/verify-data.sh"
+```
+
+Set `gates.data = true/false/"skipped:no_db"`.
 
 ## Output
 
@@ -91,8 +113,8 @@ If any gate fails, write error to STATE.json `last_error` field.
 
 ## Rules
 
-- Run checks in order: typecheck → tests → browser
+- Run checks in order: modules → routes → typecheck → tests → browser → data
 - Do NOT fix code — only verify. The executor fixes.
-- Use agent-browser for browser checks, NOT Playwright MCP
-- Check the plan's User Flow section for what to verify
+- Use agent-browser for ALL browser checks (not Playwright MCP)
+- Check the plan's User Flow section for what to verify in Gate 3
 - Report what the user ACTUALLY sees, not what should theoretically work
