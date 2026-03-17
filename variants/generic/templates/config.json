@@ -1,0 +1,16 @@
+{
+  "version": "1.0",
+  "db_strategy": "none",
+  "db": {
+    "branch_command": "",
+    "cleanup_command": ""
+  },
+  "ports": { "min": 9001, "max": 9999 },
+  "tdd": "auto",
+  "deploy": {
+    "health_url": ""
+  },
+  "install_command": "",
+  "feature_name_pattern": "^[a-z][a-z0-9-]*$",
+  "feature_name_max_length": 50
+}
